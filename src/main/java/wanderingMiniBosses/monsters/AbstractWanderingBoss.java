@@ -1,6 +1,5 @@
 package wanderingMiniBosses.monsters;
 
-import basemod.BaseMod;
 import basemod.abstracts.CustomMonster;
 import com.megacrit.cardcrawl.actions.common.EscapeAction;
 import com.megacrit.cardcrawl.actions.common.RollMoveAction;
@@ -8,6 +7,7 @@ import com.megacrit.cardcrawl.cards.DamageInfo;
 import com.megacrit.cardcrawl.dungeons.AbstractDungeon;
 import com.megacrit.cardcrawl.monsters.EnemyMoveInfo;
 import com.megacrit.cardcrawl.rewards.RewardItem;
+import wanderingMiniBosses.WanderingminibossesMod;
 import wanderingMiniBosses.util.WanderingBossHelper;
 
 import java.util.ArrayList;
@@ -21,6 +21,10 @@ public abstract class AbstractWanderingBoss extends CustomMonster {
     protected Map<Byte, EnemyMoveInfo> moves;
     protected int runTimer;
     protected ArrayList<RewardItem> rewards;
+    protected WanderingMonsterGroup.WanderingBossInfo monsterInfo;
+    public void setMonsterInfo(WanderingMonsterGroup.WanderingBossInfo monsterInfo) {
+        this.monsterInfo = monsterInfo;
+    }
 
     public AbstractWanderingBoss(String name, String id, int maxHealth, float hb_x, float hb_y, float hb_w, float hb_h, String imgUrl, float offsetX, float offsetY) {
         super(name, id, maxHealth, hb_x, hb_y, hb_w, hb_h, imgUrl, offsetX, offsetY);
@@ -58,7 +62,8 @@ public abstract class AbstractWanderingBoss extends CustomMonster {
     public void takeTurn() {
         if(this.nextMove == RUN) {
             onEscape();
-            AbstractDungeon.actionManager.addToBottom(new EscapeAction(this));
+            this.monsterInfo.setCurrentHealth(this.currentHealth);
+            WanderingminibossesMod.logger.info(this.name + " escaping battle with " + this.currentHealth + " HP!");
         } else {
             DamageInfo info = null;
             int multiplier = 0;
@@ -71,7 +76,7 @@ public abstract class AbstractWanderingBoss extends CustomMonster {
                 }
             } else {
                 info = new DamageInfo(this, 0, DamageInfo.DamageType.NORMAL);
-                BaseMod.logger.error(this.name + " MOVECODE " + this.nextMove + " NOT FOUND!");
+                WanderingminibossesMod.logger.error(this.name + " MOVECODE " + this.nextMove + " NOT FOUND!");
             }
             takeCustomTurn(info, multiplier);
         }
@@ -89,14 +94,34 @@ public abstract class AbstractWanderingBoss extends CustomMonster {
         }
     }
 
-    public void onEscape() {
+    @Override
+    protected void getMove(int num) {
+        ArrayList<Byte> possibilities = new ArrayList<>(this.moves.keySet());
+        possibilities.remove(new Byte(RUN));
+        for(int i = this.moveHistory.size() - 1, found = 0; i >= 0 && found < moves.size() - 2; i--) {
+            boolean foundThisCycle = false;
+            int before;
+            do {
+                before = possibilities.size();
+                possibilities.remove(this.moveHistory.get(i));
+                if(!foundThisCycle && possibilities.size() != before) {
+                    found++;
+                    foundThisCycle = true;
+                }
+            } while(before != possibilities.size());
+        }
+        this.setMoveShortcut(possibilities.get(AbstractDungeon.monsterRng.random(possibilities.size() - 1)));
+    }
 
+    public void onEscape() {
+        AbstractDungeon.actionManager.addToBottom(new EscapeAction(this));
     }
 
     @Override
     public void damage(DamageInfo info) {
         super.damage(info);
-        WanderingBossHelper.getMonster().currentHealth = this.currentHealth;
+        this.monsterInfo.setCurrentHealth(this.currentHealth);
+        WanderingBossHelper.checkForRewardDispensal();
     }
 
     public void setMoveShortcut(byte next, String text) {

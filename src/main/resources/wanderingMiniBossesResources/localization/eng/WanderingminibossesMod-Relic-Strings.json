@@ -14,11 +14,47 @@
       "% of its Max HP to ALL enemies."
     ]
   },
+  "wanderingMiniBosses:AbyssPearl": {
+    "NAME": "Abyss Pearl",
+    "FLAVOR": "As the abyss stared back, you stabbed it.",
+    "DESCRIPTIONS": [
+      "Each turn, the first #rAttack you play lowers its targets' #yStrength by #b",
+      " this turn. NL The second #rAttack you play inflicts #b"," #yVulnerable. NL The third #rAttack you play gains you #b"," #yBlock for each target hit."
+    ]
+  },
+  "wanderingMiniBosses:OtherGremlinHorn": {
+    "NAME": "The Other Gremlin Horn",
+    "FLAVOR": "\"Aaaaagghh!!\" - also Ranwid",
+    "DESCRIPTIONS": [
+      "The first time you apply #yWeak or #yVulnerable each turn, gain [E] and draw #b1 card."
+    ]
+  },
   "wanderingMiniBosses:Inkheart": {
     "NAME": "Inkheart",
     "FLAVOR": "The eye stares as you grasp its sticky surface.",
     "DESCRIPTIONS": [
       "You can see and play the top card of your draw pile."
+    ]
+  },
+  "wanderingMiniBosses:ThiefScarf": {
+    "NAME": "Scarf of the Bandit Ninja",
+    "FLAVOR": "You put it in your bag but now you can't find it.",
+    "DESCRIPTIONS": [
+      "At the start of each combat, obtain #b2 random #yRelics for that combat only."
+    ]
+  },
+  "wanderingMiniBosses:LockLocket": {
+    "NAME": "Lock Locket",
+    "FLAVOR": "With this, you're golden.",
+    "DESCRIPTIONS": [
+      "When you would die, if you have #yGold, lose #b100 #yGold and heal to #b1 HP."
+    ]
+  },
+  "wanderingMiniBosses:MasterThiefsPresence": {
+    "NAME": "Master Thief's Presence",
+    "FLAVOR": "\"YOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOU\" - The Ssssserpent",
+    "DESCRIPTIONS": [
+      "At the start of each combat, apply #b3 #yVulnerable and #b3 #yWeak to ALL enemies."
     ]
   }
 }

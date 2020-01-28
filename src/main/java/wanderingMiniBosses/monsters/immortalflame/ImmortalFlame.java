@@ -16,7 +16,6 @@ import com.megacrit.cardcrawl.helpers.Hitbox;
 import com.megacrit.cardcrawl.localization.MonsterStrings;
 import com.megacrit.cardcrawl.monsters.AbstractMonster;
 import com.megacrit.cardcrawl.monsters.EnemyMoveInfo;
-import com.megacrit.cardcrawl.powers.VulnerablePower;
 import com.megacrit.cardcrawl.relics.RunicDome;
 import com.megacrit.cardcrawl.rewards.RewardItem;
 import com.megacrit.cardcrawl.rooms.AbstractRoom;
@@ -26,7 +25,9 @@ import wanderingMiniBosses.WanderingminibossesMod;
 import wanderingMiniBosses.monsters.AbstractWanderingBoss;
 import wanderingMiniBosses.powers.BlazingPower;
 import wanderingMiniBosses.powers.InnerFlamePower;
+import wanderingMiniBosses.powers.delayedpowers.VulnerableAllPower;
 import wanderingMiniBosses.relics.CarrionFlame;
+import wanderingMiniBosses.vfx.combat.ReviveEffect;
 import wanderingMiniBosses.vfx.general.CalmFireEffect;
 import wanderingMiniBosses.vfx.general.CasualFlameParticleEffect;
 
@@ -54,16 +55,16 @@ public class ImmortalFlame extends AbstractWanderingBoss {
     private static final byte EXPLOSION = 1;
     private static final byte FLAMEWALL = 2;
 
-    private static final int MAX_HEALTH = 190;
+    private static final int MAX_HEALTH = 275;
 
     private static final int EXPLOSION_DMG = 7;
     private static final int EXPLOSION_VULN = 2;
 
     private static final int FW_DMG = 2;
-    private static final int FW_MULTI = 6;
+    private static final int FW_MULTI = 5;
 
-    private static final int IF_HPL = 4;
-    private static final int IF_SG = 1;
+    private static final int IF_HPL = 5;
+    private static final int IF_SG = 2;
 
     private static final float MAX_Y = 250.0F;
     private static final float MIN_Y = 150.0F;
@@ -111,14 +112,7 @@ public class ImmortalFlame extends AbstractWanderingBoss {
                 addToBot(new VFXAction(new ShockWaveEffect(this.hb.cX, this.hb.cY, Color.SALMON, ShockWaveEffect.ShockWaveType.CHAOTIC)));
 
                 AbstractDungeon.actionManager.addToBottom(new DamageAction(AbstractDungeon.player, info, AbstractGameAction.AttackEffect.FIRE));
-                addToBot(new ApplyPowerAction(AbstractDungeon.player, this, new VulnerablePower(AbstractDungeon.player, EXPLOSION_VULN, true), EXPLOSION_VULN));
-                for(AbstractMonster m : AbstractDungeon.getMonsters().monsters) {
-                    if (!m.isDeadOrEscaped() && !m.id.equals(ID)) {
-                        info.applyPowers(this, m);
-                        AbstractDungeon.actionManager.addToBottom(new DamageAction(m, info, AbstractGameAction.AttackEffect.FIRE));
-                        addToBot(new ApplyPowerAction(m, this, new VulnerablePower(m, EXPLOSION_VULN, true), EXPLOSION_VULN));
-                    }
-                }
+                addToBot(new ApplyPowerAction(this, this, new VulnerableAllPower(this, EXPLOSION_VULN), EXPLOSION_VULN));
                 break;
             case FLAMEWALL:
                 AbstractDungeon.actionManager.addToBottom(new VFXAction(this, new ScreenOnFireEffect(), 1.0F));
@@ -148,6 +142,12 @@ public class ImmortalFlame extends AbstractWanderingBoss {
                 setMoveShortcut(FLAMEWALL, MOVES[2]);
             }
         }
+    }
+
+    @Override
+    public void die(boolean triggerRelics) {
+        super.die(triggerRelics);
+        addToTop(new VFXAction(new ReviveEffect(this)));
     }
 
     @Override
